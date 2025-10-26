@@ -7,6 +7,8 @@ IG_PASSWORD = os.environ.get("IG_PASSWORD")
 SESSION_FILE = "session.json"
 
 custom_cmds = {}
+owner_id = None
+owner_username = None
 
 def login() -> Client:
     cl = Client()
@@ -18,8 +20,24 @@ def login() -> Client:
 
 def handle_message(cl: Client, thread, message_text: str):
     cmd_split = message_text.split(maxsplit=2)
+    global owner_id, owner_username
     cmd = cmd_split[0].lower()
+    sender_id = thread.messages[0].user_id
+    sender = next((user for user in thread.users if user.pk == sender_id), None)
+    
     match cmd:
+        case "claim":
+            if owner_id is None:
+                owner_id = sender_id
+                owner_username = sender.username
+                cl.direct_send(text=f"You have claimed ownership of this bot.\n {owner_id}, {owner_username}", thread_ids=[thread.id])
+            else:
+                cl.direct_send(text=f"This bot is already claimed by {owner_username}", thread_ids=[thread.id])
+        case "unclaim":
+            if sender_id == owner_id:
+                owner_id = None
+                owner_username = None
+                cl.direct_send(text="You have unclaimed ownership of this bot.", thread_ids=[thread.id])
         case "ping":
             cl.direct_send(text="Pong!", thread_ids=[thread.id])
         case "add":
