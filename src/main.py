@@ -9,13 +9,16 @@ SESSION_FILE = "session.json"
 custom_cmds = {}
 owner_id = None
 owner_username = None
+bot_id = None
 
 def login() -> Client:
+    global bot_id
     cl = Client()
     if os.path.exists(SESSION_FILE):
         cl.load_settings(SESSION_FILE)
     cl.login(IG_USERNAME, IG_PASSWORD)
     cl.dump_settings(SESSION_FILE)
+    bot_id = cl.user_id
     return cl
 
 def handle_message(cl: Client, thread, message_text: str):
@@ -30,7 +33,7 @@ def handle_message(cl: Client, thread, message_text: str):
             if owner_id is None:
                 owner_id = sender_id
                 owner_username = sender.username
-                cl.direct_send(text=f"You have claimed ownership of this bot.\n {owner_id}, {owner_username}", thread_ids=[thread.id])
+                cl.direct_send(text=f"You have claimed ownership of this bot.", thread_ids=[thread.id])
             else:
                 cl.direct_send(text=f"This bot is already claimed by {owner_username}", thread_ids=[thread.id])
         case "unclaim":
@@ -60,6 +63,22 @@ def handle_message(cl: Client, thread, message_text: str):
                     cl.direct_send(text=f"Deleted command '{trigger}'", thread_ids=[thread.id])
                 else:
                     cl.direct_send(text=f"Command '{trigger}' not found", thread_ids=[thread.id])
+        case "purge":
+            if sender_id != owner_id:
+                cl.direct_message_seen(thread.id, thread.messages[0].id)
+                return
+            if len(cmd_split) >= 2:
+                try:
+                    count = int(cmd_split[1])
+                    deleted = 0
+                    for msg in cl.direct_messages(thread.id):
+                        if str(msg.user_id) == str(bot_id) and deleted < count:
+                            cl.direct_message_delete(thread.id, msg.id)
+                            deleted += 1
+                    cl.direct_message_seen(thread.id, thread.messages[0].id)
+                    print(f"Purged {deleted} messages in thread {thread.id}")
+                except ValueError:
+                    cl.direct_send(text="Invalid number", thread_ids=[thread.id])
         case _:
             if cmd in custom_cmds:
                 response = custom_cmds[cmd]
