@@ -41,12 +41,18 @@ def handle_message(cl: Client, thread, message_text: str):
         case "ping":
             cl.direct_send(text="Pong!", thread_ids=[thread.id])
         case "add":
+            if sender_id != owner_id:
+                cl.direct_message_seen(thread.id, thread.messages[0].id)
+                return
             if len(cmd_split) >= 3:
                 trigger = cmd_split[1].lower()
                 response = cmd_split[2]
                 custom_cmds[trigger] = response
                 cl.direct_send(text=f"Added command '{trigger}'", thread_ids=[thread.id])
         case "delete":
+            if sender_id != owner_id:
+                cl.direct_message_seen(thread.id, thread.messages[0].id)
+                return
             if len(cmd_split) >= 2:
                 trigger = cmd_split[1].lower()
                 if trigger in custom_cmds:
