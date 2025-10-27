@@ -63,9 +63,9 @@ python src/main.py
 The script will log in (persisting session data to `session.json`) and poll unread direct message threads. When it receives an eligible message, it will respond according to the built-in or custom commands.
 
 ## 📸 Screenshot
+<img src="https://raw.githubusercontent.com/fludar/instagram-chatbot/main/resources/demo.jpg" width="216" height="480" /> ![screenshot](https://raw.githubusercontent.com/fludar/instagram-chatbot/main/resources/demo.gif)
 
-![screenshot](https://raw.githubusercontent.com/fludar/instagram-chatbot/main/resources/demo.gif)
-![screenshot2](https://raw.githubusercontent.com/fludar/instagram-chatbot/main/resources/demo.jpg)
+
 
 ## 🙏 Credits
 
