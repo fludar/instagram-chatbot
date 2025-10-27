@@ -41,6 +41,9 @@ def handle_message(cl: Client, thread, message_text: str):
                 owner_id = None
                 owner_username = None
                 cl.direct_send(text="You have unclaimed ownership of this bot.", thread_ids=[thread.id])
+            else:
+                cl.direct_message_seen(thread.id, thread.messages[0].id)
+                return
         case "ping":
             cl.direct_send(text="Pong!", thread_ids=[thread.id])
         case "add":
